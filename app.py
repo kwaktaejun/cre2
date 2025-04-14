@@ -6,19 +6,44 @@ import os
 import time
 
 app = Flask(__name__)
-UPLOAD_FOLDER = 'static/uploads'
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-NOTION_API_URL = "https://api.notion.com/v1/pages"
-NOTION_TOKEN = "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"
-NOTION_DB_ID = "1c255b3f92ba81038f2edac8bdf9adcb"
-NOTION_VERSION = "2022-06-28"
-
-headers = {
+NOTION_TOKEN = os.environ.get("NOTION_TOKEN", "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")
+DATABASE_ID = "1d555b3f92ba8104a80eda4755e07e54"
+NOTION_API_URL = f"https://api.notion.com/v1/pages"
+HEADERS = {
     "Authorization": f"Bearer {NOTION_TOKEN}",
     "Content-Type": "application/json",
-    "Notion-Version": NOTION_VERSION
+    "Notion-Version": "2022-06-28"
 }
+
+def create_notion_page(row):
+    properties = {
+        "제품모델명": {
+            "title": [{"text": {"content": str(row['제품모델명'])}}]
+        },
+        "모델명": {
+            "rich_text": [{"text": {"content": str(row['모델명'])}}]
+        },
+        "품명": {
+            "rich_text": [{"text": {"content": str(row['품명'])}}]
+        },
+        "규격": {
+            "rich_text": [{"text": {"content": str(row['규격'])}}]
+        },
+        "수량": {
+            "rich_text": [{"text": {"content": str(row['수량'])}}]
+        },
+        "원산지": {
+            "rich_text": [{"text": {"content": str(row['원산지'])}}]
+        },
+        "비고": {
+            "rich_text": [{"text": {"content": str(row['비고'])}}]
+        }
+    }
+    return {
+        "parent": {"database_id": DATABASE_ID},
+        "properties": properties
+    }
 
 @app.route('/')
 def index():
@@ -28,50 +53,17 @@ def index():
 def upload_excel_notion():
     if request.method == 'POST':
         file = request.files['file']
-        if file and file.filename.endswith('.xlsx'):
-            filepath = os.path.join(UPLOAD_FOLDER, file.filename)
-            file.save(filepath)
-            try:
-                df = pd.read_excel(filepath, sheet_name='영상감시시스템')
-            except Exception as e:
-                return f"<h3>엑셀 시트 오류: {e}</h3>"
+        filepath = os.path.join("/mnt/data", file.filename)
+        file.save(filepath)
 
-            df = df.fillna("")
-            columns = [
-                "구분", "계약여부", "식별번호", "계약금액", "제품모델명",
-                "품명", "모델명", "규격", "수량", "원산지 / 제조사",
-                "구성종류", "제품원가", "원천제조사", "수익률"
-            ]
+        df = pd.read_excel(filepath, sheet_name='영상감시시스템')
+        df = df.fillna("")
 
-            df = df[columns]
-            success, fail = 0, 0
+        for i, row in df.iterrows():
+            payload = create_notion_page(row)
+            res = requests.post(NOTION_API_URL, headers=HEADERS, json=payload)
+            print("[{}] 응답: {}".format(i, res.text))
+            time.sleep(0.5)
 
-            for idx, row in df.iterrows():
-                props = {}
-                for col in columns:
-                    val = row[col]
-                    if col in ["수량", "수익률"]:
-                        props[col] = {"number": float(val) if val != "" else 0}
-                    else:
-                        props[col] = {"rich_text": [{"text": {"content": str(val)}}]}
-
-                payload = {
-                    "parent": {"database_id": NOTION_DB_ID},
-                    "properties": props
-                }
-
-                try:
-                    res = requests.post(NOTION_API_URL, headers=headers, json=payload)
-                    if res.status_code == 200:
-                        success += 1
-                    else:
-                        print(f"[{idx}] 실패 응답:", res.text)
-                        fail += 1
-                except Exception as e:
-                    print(f"[{idx}] 예외 발생:", str(e))
-                    fail += 1
-
-                time.sleep(0.5)
-
-            return render_template('result.html', success=success, fail=fail)
-    return render_template('upload.html')
+        return 'Notion 업로드 완료!'
+    return render_template('upload_excel_notion.html')
