@@ -10,7 +10,7 @@ UPLOAD_FOLDER = 'static/uploads'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 NOTION_API_URL = "https://api.notion.com/v1/pages"
-NOTION_TOKEN = "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"
+NOTION_TOKEN = "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"
 NOTION_DB_ID = "1c255b3f92ba807db04be2edf1ac5f36"
 NOTION_VERSION = "2022-06-28"
 
