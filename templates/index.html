@@ -12,7 +12,12 @@
     <form method="POST" onsubmit="return prepareSubmission();">
         <label>📁 엑셀 업로드:
             <input type="file" id="excelFile" accept=".xlsx">
-            <button type="button" onclick="uploadExcel()">📤 엑셀 데이터 삽입</button>
+            
+    <button type="button" onclick="uploadExcel()">📤 엑셀 데이터 삽입</button>
+    <a href="/static/작업용_품목추가.xlsx" download>
+        <button type="button">📄 양식 다운로드</button>
+    </a>
+    
         </label>
         <br><br>
 
