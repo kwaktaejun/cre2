@@ -9,7 +9,14 @@
 <body>
     <h1>📄 마스터시트 데이터 입력</h1>
 
-    <form method="POST" onsubmit="return prepareSubmission();">
+    
+<form method="POST" onsubmit="return prepareSubmission();">
+    <label>📁 엑셀 업로드:
+        <input type="file" id="excelFile" accept=".xlsx">
+        <button type="button" onclick="uploadExcel()">📤 엑셀 데이터 삽입</button>
+    </label>
+    <br><br>
+ onsubmit="return prepareSubmission();">
         <label>📌 업로드 메모:
             <textarea name="memo" rows="2" style="width: 100%; margin: 10px 0;" placeholder="이번 업로드 회차에 대한 간단한 메모를 입력하세요"></textarea>
         </label>
@@ -42,6 +49,35 @@
         <input type="hidden" name="tableData" id="tableData">
         <button type="submit">📥 엑셀로 다운로드</button>
     </form>
+
+<script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+<script>
+function uploadExcel() {
+    const fileInput = document.getElementById("excelFile");
+    const file = fileInput.files[0];
+    if (!file) return alert("엑셀 파일을 선택하세요.");
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        const rows = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+
+        for (let i = 1; i < rows.length; i++) {
+            let row = rows[i];
+            let table = document.getElementById("inputTable").getElementsByTagName("tbody")[0];
+            let newRow = table.insertRow(table.rows.length - 1);
+            for (let j = 0; j < 16; j++) {
+                let cell = newRow.insertCell(j);
+                cell.contentEditable = "true";
+                cell.innerText = row[j] || "";
+            }
+        }
+    };
+    reader.readAsArrayBuffer(file);
+}
+</script>
 </body>
 <script>
 function addRow() {
