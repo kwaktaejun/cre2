@@ -22,8 +22,8 @@ def index():
         ws.append(headers)
 
         # 스타일 요소
-        thin_border = Border(left=Side(style='thin'), right=Side(style='thin'),
-                             top=Side(style='thin'), bottom=Side(style='thin'))
+        thin_border = Border(left=Side(style='thin', color='FFFFFF'), right=Side(style='thin', color='FFFFFF'),
+                             top=Side(style='thin', color='FFFFFF'), bottom=Side(style='thin', color='FFFFFF'))
         align_center = Alignment(horizontal='center', vertical='center')
         fill_blue = PatternFill(start_color="BDD7EE", end_color="BDD7EE", fill_type="solid")
         fill_white = PatternFill(start_color="FFFFFF", end_color="FFFFFF", fill_type="solid")
