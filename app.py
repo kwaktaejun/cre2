@@ -1,5 +1,5 @@
 
-from flask import Flask, request, render_template, redirect, url_for
+from flask import Flask, request, render_template
 import pandas as pd
 import requests
 import os
@@ -11,7 +11,7 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 NOTION_API_URL = "https://api.notion.com/v1/pages"
 NOTION_TOKEN = "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"
-NOTION_DB_ID = "1c255b3f92ba807db04be2edf1ac5f36"
+NOTION_DB_ID = "1c255b3f92ba81038f2edac8bdf9adcb"
 NOTION_VERSION = "2022-06-28"
 
 headers = {
